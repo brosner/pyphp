@@ -56,7 +56,12 @@ class PHPInterpreter(Interpreter):
     )
     
     tokens = ('ECHO', 'DOLLAR', 'SEMI', 'LABEL', 'SINGLE_QUOTE', 'DOUBLE_QUOTE',
-        'INT', 'RPARA', 'LPARA', 'COMMA',)
+        'INT', 'RPARA', 'LPARA', 'COMMA', 'PLUS', 'MINUS', 'TIMES', 'DIVIDE',)
+    
+    precedence = (
+        ('left', 'PLUS', 'MINUS'),
+        ('left', 'TIMES', 'DIVIDE'),
+    )
     
     t_php_ignore = ' \t'
     
@@ -78,6 +83,10 @@ class PHPInterpreter(Interpreter):
     t_php_LPARA = r'\('
     t_php_RPARA = r'\)'
     t_php_COMMA = r','
+    t_php_PLUS = r'\+'
+    t_php_MINUS = r'-'
+    t_php_TIMES = r'\*'
+    t_php_DIVIDE = r'/'
     t_php_ECHO = r'echo'
     
     def t_php_INT(self, t):
@@ -125,6 +134,19 @@ class PHPInterpreter(Interpreter):
         '''expr : DOUBLE_QUOTE DOUBLE_QUOTE'''
         if len(p) == 3:
             p[0] = ''
+    def p_expr_binop(self, p):
+        '''expr : expr PLUS expr
+                | expr MINUS expr
+                | expr TIMES expr
+                | expr DIVIDE expr'''
+        if p[2] == '+':
+            p[0] = p[1] + p[3]
+        elif p[2] == '-':
+            p[0] = p[1] - p[3]
+        elif p[2] == '*':
+            p[0] = p[1] * p[3]
+        elif p[2] == '/':
+            p[0] = p[1] / p[3]
     
     def p_function_call(self, p):
         '''function_call : LABEL function_params'''
