@@ -113,7 +113,8 @@ class PHPInterpreter(Interpreter):
     
     def p_statement_expr(self, p):
         '''statement : expr SEMI'''
-        pass
+        if self.interactive:
+            sys.stdout.write(str(p[1]) + '\n')
     
     def p_statement_echo(self, p):
         '''statement : ECHO expr SEMI'''
